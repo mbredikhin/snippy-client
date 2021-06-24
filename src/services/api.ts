@@ -14,12 +14,26 @@ class ApiService {
     );
   }
 
-  public signUp(params: ISignUpInput) {
-    return this.instance.post<{ token: string }>('/auth/sign-up', { params });
+  protected addHeader(name: string, value: string) {
+    this.instance.defaults.headers.common[name] = value;
   }
 
-  public signIn(params: ISignInInput) {
-    return this.instance.post<{ token: string }>('/auth/sign-in', { params });
+  protected removeHeader(name: string) {
+    delete this.instance.defaults.headers.common[name];
+  }
+
+  protected setBearer(token: string) {
+    this.addHeader('Authorization', `Bearer ${token}`);
+  }
+
+  public async signUp(params: ISignUpInput) {
+    const { token } = await this.instance.post<ISignUpInput, { token: string }>('/auth/sign-up', { params });
+    this.setBearer(token);
+  }
+
+  public async signIn(params: ISignInInput) {
+    const { token } = await this.instance.post<ISignInInput, { token: string }>('/auth/sign-in', { params });
+    this.setBearer(token);
   }
 
   public createList(params: { name: string }) {
